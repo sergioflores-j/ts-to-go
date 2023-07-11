@@ -1,15 +1,19 @@
-export type PromiseReturningFn<Args extends unknown[], Result = unknown> = (
-  ...args: Args
-) => Promise<Result>;
+import util from 'node:util';
 
-export type NonPromiseReturningFn<Args extends unknown[], Result = unknown> = (
-  ...args: Args
-) => Result;
+export interface PromiseReturningFn<Args extends unknown[], Result = unknown>
+  extends Promise<Result> {
+  (...args: Args): Promise<Result>;
+}
+
+export interface NonPromiseReturningFn<Args extends unknown[], Result = unknown>
+  extends Function {
+  then?: never;
+  (...args: Args): Result;
+}
 
 export type WrappedResponse<Result = unknown> =
   | readonly [undefined, Result]
   | readonly [unknown, undefined];
-
 
 /**
  * Type guard to check whether the received function is a promise returning function
@@ -17,12 +21,21 @@ export type WrappedResponse<Result = unknown> =
 function isPromiseReturningFn<Args extends unknown[], Result>(
   fn: PromiseReturningFn<Args, Result> | NonPromiseReturningFn<Args, Result>
 ): fn is PromiseReturningFn<Args, Result> {
-  return fn[Symbol.toStringTag] === 'AsyncFunction' || fn[Symbol.toStringTag] === 'Promise';
+  return (
+    util.types.isAsyncFunction(fn) ||
+    util.types.isPromise(fn) ||
+    // eslint-disable-next-line promise/prefer-await-to-then
+    typeof fn.then === 'function'
+  );
 }
 
 // Overloads
-export function wrapException<Args extends unknown[], Response>(fn: PromiseReturningFn<Args, Response>): ((...args: Args) => Promise<WrappedResponse<Response>>);
-export function wrapException<Args extends unknown[], Response>(fn: NonPromiseReturningFn<Args, Response>): ((...args: Args) => WrappedResponse<Response>);
+export function wrapException<Args extends unknown[], Response>(
+  fn: PromiseReturningFn<Args, Response>
+): (...args: Args) => Promise<WrappedResponse<Response>>;
+export function wrapException<Args extends unknown[], Response>(
+  fn: NonPromiseReturningFn<Args, Response>
+): (...args: Args) => WrappedResponse<Response>;
 
 // Implementation
 /**
@@ -49,7 +62,9 @@ export function wrapException<Args extends unknown[], Response>(fn: NonPromiseRe
   */
 export function wrapException<Args extends unknown[], Response>(
   fn: PromiseReturningFn<Args, Response> | NonPromiseReturningFn<Args, Response>
-): ((...args: Args) => Promise<WrappedResponse<Response>> | WrappedResponse<Response>) {
+): (
+  ...args: Args
+) => Promise<WrappedResponse<Response>> | WrappedResponse<Response> {
   // Handles async functions
   if (isPromiseReturningFn(fn)) {
     return async (...args: Args): Promise<WrappedResponse<Response>> => {
@@ -59,7 +74,7 @@ export function wrapException<Args extends unknown[], Response>(
       } catch (error) {
         return [error, undefined] as const;
       }
-    }
+    };
   }
 
   return (...args: Args): WrappedResponse<Response> => {
@@ -71,4 +86,4 @@ export function wrapException<Args extends unknown[], Response>(
       return [error, undefined] as const;
     }
   };
-};
+}
