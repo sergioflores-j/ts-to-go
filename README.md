@@ -1,50 +1,65 @@
 # ts-to-go
 
-Utilities to go for coding Typescript in Golang style!
+`ts-to-go` is a TypeScript utility library designed with a Golang flair. It provides a way to enhance error handling in your TypeScript applications. The main feature is a wrapper function that encapsulates both asynchronous and synchronous functions to return arrays containing both errors and results.
 
 ## Getting started
 
-- Installation
+You can install the `ts-to-go` package using npm or yarn with the following commands:
 
-```
+```bash
 npm i ts-to-go
-
+# or
 yarn add ts-to-go
 ```
 
-### Wrapping Async functions
+## How to Use
+
+### 1. Wrapping Asynchronous Functions
+
+You can wrap your asynchronous functions using `wrapException` to enhance error handling. It returns an array with either `[undefined, Result]` when the promise is resolved successfully or `[Error, undefined]` when the promise is rejected.
 
 ```ts
 import { wrapException } from 'ts-to-go';
 
-const wrappedFn = wrapException(async (param1: string) => {
-  if (param1 === 'bar') throw new Error('bar');
+// An async function
+const asyncFn = async (param: string) => {
+if (param === 'error') throw new Error('Oops! An error occurred.');
 
-  return await Promise.resolve('foo');
-});
+return 'Success';
+};
 
-const [error, result] = await wrappedFn('bar');
+// Wrap it using wrapException
+const wrappedAsyncFn = wrapException(asyncFn);
 
-// error: unknown
-// result: string | undefined
+// Use the wrapped function
+const [error, result] = await wrappedAsyncFn('error');
 
-if (error instanceof Error) {
-  console.log('handling the error')
-}
-
-console.log('bar', error, result); // bar bar undefined
+// Now you can handle the error and result easily
+console.log(error, result); // Error: 'Oops! An error occurred.' Result: undefined
 ```
 
-### Wrapping non Async functions
+### 2. Wrapping Synchronous Functions
+
+You can wrap synchronous functions using `wrapException` in a similar way. It returns an array with either `[undefined, Result]` when the function execution is successful or `[Error, undefined]` when an error is thrown.
 
 ```ts
-export const sum = wrapException((num1: number, num2: number): number | undefined => {
-  if (num1 === 0) throw new Error('Error!!');
+import { wrapException } from 'ts-to-go';
 
-  return num1 + num2;
-});
+// A sync function
+const syncFn = (num1: number, num2: number) => {
+if (num1 === 0) throw new Error('Zero is not allowed.');
 
-const [errorS, resultS] = sum(1, 1); // types errorS: unknown, resultS: number | undefined
+return num1 + num2;
+};
 
-console.log('sum', errorS, resultS); // sum undefined 2
+// Wrap it using wrapException
+const wrappedSyncFn = wrapException(syncFn);
+
+// Use the wrapped function
+const [error, result] = wrappedSyncFn(0, 1);
+
+// Now you can handle the error and result easily
+console.log(error, result); // Error: 'Zero is not allowed.' Result: undefined
 ```
+
+By adopting this error handling pattern, `ts-to-go` allows for a more explicit management of error states, enhancing the readability of your TypeScript code.
