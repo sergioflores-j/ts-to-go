@@ -1,3 +1,5 @@
+import { types as t } from "util";
+
 export type PromiseReturningFn<Args extends unknown[], Result = unknown> = (
   ...args: Args
 ) => Promise<Result>;
@@ -6,11 +8,9 @@ export type NonPromiseReturningFn<Args extends unknown[], Result = unknown> = (
   ...args: Args
 ) => Result;
 
-export type ErrorResult = { error: unknown };
-export type SuccessResult<Result> = { result: Result };
 export type WrappedResponse<Result = unknown> =
-  | ErrorResult
-  | SuccessResult<Result>;
+  | readonly [undefined, Result]
+  | readonly [unknown, undefined];
 
 /**
  * Type guard to check whether the received function is a promise returning function
@@ -18,10 +18,8 @@ export type WrappedResponse<Result = unknown> =
 function isPromiseReturningFn<Args extends unknown[], Result>(
   fn: PromiseReturningFn<Args, Result> | NonPromiseReturningFn<Args, Result>
 ): fn is PromiseReturningFn<Args, Result> {
-  return (
-    fn[Symbol.toStringTag] === "AsyncFunction" ||
-    fn[Symbol.toStringTag] === "Promise"
-  );
+  // Check if function is async or if it has a 'then' method
+  return t.isAsyncFunction(fn) || typeof (fn as any).then === "function";
 }
 
 // Overloads
@@ -34,27 +32,10 @@ export function wrapException<Args extends unknown[], Response>(
 
 // Implementation
 /**
- */
-/**
  * Wraps a function that returns a Promise or not
  * Returns a comprehensible tuple interface for better error handling
  * @returns [Error, Result]
- * @example
-  const wrappedFn = wrapException(async (param1: string) => {
-    if (param1 === 'bar') throw new Error('bar');
-
-    return await Promise.resolve('foo');
-  });
-
-  // wrappedFn will be typed with `const wrappedFn: (param1: string) => Promise<WrappedResponse<string>>`
-
-  const [error, result] = await wrappedFn('bar');
-
-  // error: unknown
-  // result: string | undefined
-
-  console.log('bar', error, result); // bar bar undefined
-  */
+ */
 export function wrapException<Args extends unknown[], Response>(
   fn: PromiseReturningFn<Args, Response> | NonPromiseReturningFn<Args, Response>
 ): (
@@ -64,19 +45,20 @@ export function wrapException<Args extends unknown[], Response>(
     return async (...args: Args): Promise<WrappedResponse<Response>> => {
       try {
         const result = await fn(...args);
-        return { result };
+        return [undefined, result] as const;
       } catch (error) {
-        return { error };
+        return [error, undefined] as const;
       }
     };
   }
 
+  // Handles sync functions
   return (...args: Args): WrappedResponse<Response> => {
     try {
       const result = fn(...args);
-      return { result };
-    } catch (error) {
-      return { error };
+      return [undefined, result] as const;
+    } catch (error: unknown) {
+      return [error, undefined] as const;
     }
   };
 }
