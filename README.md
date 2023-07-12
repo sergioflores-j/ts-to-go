@@ -40,10 +40,10 @@ console.log(error, result); // Error: 'Oops! An error occurred.' Result: undefin
 
 ### 2. Wrapping Synchronous Functions
 
-You can wrap synchronous functions using `wrapException` in a similar way. It returns an array with either `[undefined, Result]` when the function execution is successful or `[Error, undefined]` when an error is thrown.
+You can wrap synchronous functions using `wrapExceptionSync` in a similar way. It returns an array with either `[undefined, Result]` when the function execution is successful or `[Error, undefined]` when an error is thrown.
 
 ```ts
-import { wrapException } from 'ts-to-go';
+import { wrapExceptionSync } from 'ts-to-go';
 
 // A sync function
 const syncFn = (num1: number, num2: number) => {
@@ -52,8 +52,8 @@ if (num1 === 0) throw new Error('Zero is not allowed.');
 return num1 + num2;
 };
 
-// Wrap it using wrapException
-const wrappedSyncFn = wrapException(syncFn);
+// Wrap it using wrapExceptionSync
+const wrappedSyncFn = wrapExceptionSync(syncFn);
 
 // Use the wrapped function
 const [error, result] = wrappedSyncFn(0, 1);
