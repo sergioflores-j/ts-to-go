@@ -1,4 +1,4 @@
-import { wrapException, wrapExceptionSync } from './index';
+import { wrapException } from './index';
 
 describe('wrapException - async', () => {
   describe('async/await', () => {
@@ -75,6 +75,21 @@ describe('wrapException - async', () => {
       expect(error).toBeInstanceOf(Error);
       expect(error).toHaveProperty('message', 'test error');
     });
+
+    it('should return the error in a tuple with 2 positions when the promise throws', async () => {
+      const wrappedFn = wrapException(
+        async () =>
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          new Promise((_resolve, _reject) => {
+            // something weird happened
+            throw new Error('test error from throw');
+          }),
+      );
+
+      const [error] = await wrappedFn();
+      expect(error).toBeInstanceOf(Error);
+      expect(error).toHaveProperty('message', 'test error from throw');
+    });
   });
 
   describe('invalid async function', () => {
@@ -93,14 +108,14 @@ describe('wrapException - async', () => {
 
 describe('wrapException - sync', () => {
   it('should return the result in a tuple with 2 positions when the function executes', () => {
-    const wrappedFn = wrapExceptionSync(() => 'test');
+    const wrappedFn = wrapException(() => 'test');
     const result = wrappedFn();
 
     expect(result).toEqual([undefined, 'test']);
   });
 
   it('should return the error in a tuple with 2 positions when the function throws', () => {
-    const wrappedFn = wrapExceptionSync((num1: number) => {
+    const wrappedFn = wrapException((num1: number) => {
       if (num1 === 0) throw new Error('test error');
     });
 
