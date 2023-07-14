@@ -25,13 +25,12 @@ module.exports = {
   ],
   plugins: ['@typescript-eslint', 'jest', 'promise', 'prettier'],
   ignorePatterns: [
-    'dist/**',
-    'build/**',
-    'coverage/**',
-    'node_modules/**',
+    '**/dist/**',
+    '**/build/**',
+    '**/coverage/**',
+    '**/node_modules/**',
     '**/*.js',
-    // TODO: add turbo setup
-    // '.turbo/**',
+    '**/.turbo/**',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {

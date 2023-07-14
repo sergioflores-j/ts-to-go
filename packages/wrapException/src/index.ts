@@ -1,4 +1,4 @@
-import util from 'node:util';
+import { types as nodeUtilTypes } from 'node:util';
 
 export type AsyncFn<Args extends unknown[], Result = unknown> = (
   ...args: Args
@@ -25,8 +25,8 @@ const isPromise = <Args extends unknown[], Result = unknown>(
       (typeof value === 'object' || typeof value === 'function') &&
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
       typeof (value as any).then === 'function') ||
-    util.types.isAsyncFunction(value) ||
-    util.types.isPromise(value)
+    nodeUtilTypes.isAsyncFunction(value) ||
+    nodeUtilTypes.isPromise(value)
   );
 };
 
