@@ -5,10 +5,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.js",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --minify --platform=node --target=node16 --outfile=dist/index.js && tsc src/index.ts --emitDeclarationOnly --declaration --outFile dist/index.d.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node16 --outfile=dist/index.js && npx --package=typescript tsc --project ./tsconfig.lib.json",
     "lint": "npx eslint . --ext .ts",
     "test": "npx jest",
-    "type-check": "tsc --noEmit"
+    "type-check": "npx --package=typescript tsc --noEmit"
   },
   "author": "Sergio Flores & Richard Devegili",
   "license": "ISC"

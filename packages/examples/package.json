@@ -1,0 +1,15 @@
+{
+  "name": "@ts-to-go/examples",
+  "version": "1.0.0",
+  "description": "TS to go examples",
+  "scripts": {
+    "lint": "npx eslint . --ext .ts",
+    "test": "npx jest",
+    "type-check": "tsc --noEmit"
+  },
+  "author": "Sergio Flores & Richard Devegili",
+  "license": "ISC",
+  "dependencies": {
+    "@ts-to-go/wrap-exception": "*"
+  }
+}
