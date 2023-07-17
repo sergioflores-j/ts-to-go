@@ -1,0 +1,15 @@
+{
+  "name": "@ts-to-go/wrap-exception",
+  "version": "1.0.0",
+  "description": "TS to go for better error handling",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node16 --outfile=dist/index.js && npx --package=typescript tsc --project ./tsconfig.lib.json",
+    "lint": "npx eslint . --ext .ts",
+    "test": "npx jest",
+    "type-check": "npx --package=typescript tsc --noEmit"
+  },
+  "author": "Sergio Flores & Richard Devegili",
+  "license": "ISC"
+}

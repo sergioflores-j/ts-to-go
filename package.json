@@ -1,15 +1,20 @@
 {
   "name": "@ts-to-go/root",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "TS utilities ready to go",
   "scripts": {
-    "lint": "npx eslint . --ext .ts",
-    "test": "npx jest",
-    "type-check": "tsc --noEmit"
+    "build": "npx turbo build",
+    "lint": "npx turbo lint",
+    "test": "npx turbo test",
+    "type-check": "npx turbo type-check"
   },
-  "author": "",
+  "author": "Sergio Flores & Richard Devegili",
   "license": "ISC",
+  "workspaces": ["packages/*"],
+  "engines": {
+    "node": ">= 16"
+  },
+  "packageManager": "npm@9.8.0",
   "devDependencies": {
     "@babel/preset-typescript": "^7.21.0",
     "@tsconfig/node-lts": "^18.12.3",
@@ -30,6 +35,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "jest": "^29.3.1",
     "prettier": "^2.8.2",
+    "turbo": "^1.10.7",
     "typescript": "^5.1.6"
   }
 }

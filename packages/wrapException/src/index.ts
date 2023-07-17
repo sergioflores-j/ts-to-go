@@ -1,47 +1,47 @@
-import util from 'node:util';
+import { types as nodeUtilTypes } from 'node:util';
 
-export type AsyncFn<Args extends unknown[], Result = unknown> = (
+export type AsyncFn<Args extends unknown[], Response = unknown> = (
   ...args: Args
-) => Promise<Result>;
+) => Promise<Response>;
 
-export type SyncFn<Args extends unknown[], Result = unknown> = (
+export type SyncFn<Args extends unknown[], Response = unknown> = (
   ...args: Args
-) => Result;
+) => Response;
 
-export type WrappedResponse<Result = unknown> =
-  | readonly [undefined, Result]
-  | readonly [unknown, undefined];
+export type WrappedResponse<Response = unknown> =
+  | readonly [undefined, Response] // Success
+  | readonly [unknown, undefined]; // Error
 
-const isPromise = <Args extends unknown[], Result = unknown>(
+const isPromise = <Args extends unknown[], Response = unknown>(
   value:
-    | AsyncFn<Args, Result>
-    | SyncFn<Args, Result>
-    | SyncFn<Args, PromiseLike<Result>>
-    | Result
-    | PromiseLike<Result>,
-): value is AsyncFn<Args, Result> => {
+    | AsyncFn<Args, Response>
+    | SyncFn<Args, Response>
+    | SyncFn<Args, PromiseLike<Response>>
+    | Response
+    | PromiseLike<Response>,
+): value is AsyncFn<Args, Response> => {
   return (
     (value != null &&
       (typeof value === 'object' || typeof value === 'function') &&
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
       typeof (value as any).then === 'function') ||
-    util.types.isAsyncFunction(value) ||
-    util.types.isPromise(value)
+    nodeUtilTypes.isAsyncFunction(value) ||
+    nodeUtilTypes.isPromise(value)
   );
 };
 
 // async
-export function wrapException<Args extends unknown[], Response>(
+function wrapException<Args extends unknown[], Response>(
   fn: AsyncFn<Args, Response>,
 ): (...args: Args) => Promise<WrappedResponse<Response>>;
 
 // fully sync
-export function wrapException<Args extends unknown[], Response>(
+function wrapException<Args extends unknown[], Response>(
   fn: SyncFn<Args, Response>,
 ): (...args: Args) => WrappedResponse<Response>;
 
 // sync with promise on return
-export function wrapException<Args extends unknown[], Response>(
+function wrapException<Args extends unknown[], Response>(
   fn: SyncFn<Args, PromiseLike<Response>>,
 ): (...args: Args) => Promise<WrappedResponse<Response>>;
 
@@ -95,7 +95,7 @@ export function wrapException<Args extends unknown[], Response>(
 
   console.log('bar', error, result); // bar bar undefined
   */
-export function wrapException<Args extends unknown[], Response>(
+function wrapException<Args extends unknown[], Response>(
   fn:
     | AsyncFn<Args, Response>
     | SyncFn<Args, Response>
@@ -148,3 +148,5 @@ export function wrapException<Args extends unknown[], Response>(
     }
   };
 }
+
+export default wrapException;
