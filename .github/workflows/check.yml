@@ -10,6 +10,14 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
     steps:
+      - name: Cancel if [skip ci]
+        if: contains(github.event.head_commit.message, '[skip ci]')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run cancel ${{ github.run_id }}
+          gh run watch ${{ github.run_id }}
+
       - uses: actions/checkout@v3
         name: Checkout
         with:
