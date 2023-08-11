@@ -20,6 +20,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
       - run: npm ci
@@ -34,7 +35,15 @@ jobs:
         run: npm run set-version
         env:
           VERSION: ${{ github.event.release.tag_name }}
+
       - name: Publish to NPM
         run: npm run publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # TODO: missing the commit of the package.json??
+      # - name: Commit CHANGELOG.md and package.json changes and create tag
+      #   run: |
+      #     git add "package.json"
+      #     git add "CHANGELOG.md"
+      #     git commit -m "chore: release ${{ env.NEW_VERSION }}"
