@@ -11,8 +11,7 @@ jobs:
   publish_packages:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write
+      contents: write
     steps:
       - uses: actions/checkout@v3
         name: Checkout
@@ -42,7 +41,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      # TODO: fix skip-ci and git push
+      # TODO: fix skip-ci & remove examples workspace
       - name: Commit package.json changes
         run: |
           git add "**/package.json"
