@@ -17,6 +17,7 @@ jobs:
         name: Checkout
         with:
           fetch-depth: 2
+          token: ${{ secrets.RELEASE_BOT_PAT }}
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
