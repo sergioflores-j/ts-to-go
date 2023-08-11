@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "TS utilities ready to go",
   "scripts": {
-    "build": "npx turbo build",
-    "lint": "npx turbo lint",
-    "test": "npx turbo test",
-    "type-check": "npx turbo type-check"
+    "build": "npx turbo run build",
+    "build-affected": "npx turbo run build --filter=[$FROM_COMMIT...$TO_COMMIT]",
+    "lint": "npx turbo run type-check lint",
+    "lint-affected": "npx turbo run type-check lint --filter=[$FROM_COMMIT...$TO_COMMIT]",
+    "test": "npx turbo run test",
+    "test-affected": "npx turbo run test --filter=[$FROM_COMMIT...$TO_COMMIT]",
+    "publish": "npx turbo run publish --filter=[$FROM_COMMIT...$TO_COMMIT]"
   },
   "author": "Sergio Flores & Richard Devegili",
   "license": "ISC",

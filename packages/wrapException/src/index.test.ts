@@ -1,4 +1,4 @@
-import { wrapException } from './index';
+import wrapException from './index';
 
 describe('wrapException - async', () => {
   describe('async/await', () => {

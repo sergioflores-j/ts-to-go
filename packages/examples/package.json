@@ -4,7 +4,7 @@
   "description": "TS to go examples",
   "scripts": {
     "lint": "npx eslint . --ext .ts",
-    "test": "npx jest",
+    "test": "npx jest --passWithNoTests",
     "type-check": "tsc --noEmit"
   },
   "author": "Sergio Flores & Richard Devegili",

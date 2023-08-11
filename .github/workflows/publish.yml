@@ -1,0 +1,26 @@
+name: Publish
+
+on:
+  release: 
+    types: [published]
+
+jobs:
+  publish_packages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+      - run: npm ci
+      - run: npm run build
+      # TODO: Check if it updates package.json version
+      - name: Set package version
+        run: npm run set-version
+      - name: Publish to NPM
+        run: npm run publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
