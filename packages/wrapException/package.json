@@ -4,11 +4,13 @@
   "description": "TS to go for better error handling",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
+  "private": false,
   "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --target=node16 --outfile=dist/index.js && npx --package=typescript tsc --project ./tsconfig.lib.json",
     "lint": "npx eslint . --ext .ts",
     "test": "npx jest",
-    "type-check": "npx --package=typescript tsc --noEmit"
+    "type-check": "npx --package=typescript tsc --noEmit",
+    "publish": "npm publish --access public"
   },
   "author": "Sergio Flores & Richard Devegili",
   "license": "ISC"
