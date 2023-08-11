@@ -11,7 +11,7 @@
     "test": "npx jest",
     "type-check": "npx --package=typescript tsc --noEmit",
     "publish": "npm publish --access public",
-    "set-version": "npm version from-git"
+    "set-version": "npm version $VERSION"
   },
   "author": "Sergio Flores & Richard Devegili",
   "license": "ISC"

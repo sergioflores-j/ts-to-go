@@ -30,11 +30,10 @@ jobs:
          git config --global user.name "${{ github.actor }}"
          git config --global user.email "github-action-${{ github.actor }}@users.noreply.github.com"
       
-      # TODO: Check if it updates package.json version
-      # Alternative Option - run: npm version ${{ github.event.release.tag_name }}
-
       - name: Set package version
         run: npm run set-version
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
       - name: Publish to NPM
         run: npm run publish
         env:
