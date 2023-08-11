@@ -1,16 +1,16 @@
-# @ts-to-go/wrapException
+# @ts-to-go/wrap-exception
 
-`@ts-to-go/wrapException` is a wrapper function that encapsulates both asynchronous and synchronous functions to return a tuple containing both the error and the result.
+`@ts-to-go/wrap-exception` is a wrapper function that encapsulates both asynchronous and synchronous functions to return a tuple containing both the error and the result.
 By adopting this error handling pattern, `ts-to-go` allows for a more explicit management of error states, enhancing the readability of your TypeScript code.
 
 ## Getting started
 
-You can install the `@ts-to-go/wrapException` package using npm or yarn with the following commands:
+You can install the `@ts-to-go/wrap-exception` package using npm or yarn with the following commands:
 
 ```bash
-npm i @ts-to-go/wrapException
+npm i @ts-to-go/wrap-exception
 # or
-yarn add @ts-to-go/wrapException
+yarn add @ts-to-go/wrap-exception
 ```
 
 ## How to Use

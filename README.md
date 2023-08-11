@@ -7,13 +7,13 @@
 You can install any `ts-to-go` package using npm or yarn with as the following commands:
 
 ```bash
-npm i @ts-to-go/wrapException
+npm i @ts-to-go/wrap-exception
 # or
-yarn add @ts-to-go/wrapException
+yarn add @ts-to-go/wrap-exception
 ```
 
 ## How to Use
 
 Please refer to each package documentation:
 
-[@ts-to-go/wrapException](./packages/wrapException)
+[@ts-to-go/wrap-exception](./packages/wrapException)
