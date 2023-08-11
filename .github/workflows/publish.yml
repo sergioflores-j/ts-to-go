@@ -17,7 +17,15 @@ jobs:
           node-version: '16.x'
       - run: npm ci
       - run: npm run build
+
+      - name: Configure Git
+        run: |
+         git config --global user.name "${{ github.actor }}"
+         git config --global user.email "github-action-${{ github.actor }}@users.noreply.github.com"
+      
       # TODO: Check if it updates package.json version
+      # Alternative Option - run: npm version ${{ github.event.release.tag_name }}
+
       - name: Set package version
         run: npm run set-version
       - name: Publish to NPM
