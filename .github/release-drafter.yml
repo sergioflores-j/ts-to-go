@@ -11,7 +11,8 @@ categories:
   - title: '🧰 Maintenance'
     labels: 
       - 'maintenance'
-  - title: 'Documentation'
+      - 'dependencies'
+  - title: '📄 Documentation'
     labels: 
       - 'documentation'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
@@ -28,6 +29,7 @@ version-resolver:
     labels:
       - 'bug'
       - 'maintenance'
+      - 'dependencies'
       - 'documentation'
   default: patch
 template: |
