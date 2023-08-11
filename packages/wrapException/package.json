@@ -1,6 +1,6 @@
 {
   "name": "@ts-to-go/wrap-exception",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "TS to go for better error handling",
   "main": "dist/index.js",
   "types": "dist/index.d.js",

@@ -44,9 +44,9 @@ jobs:
 
       - name: Commit package.json changes
         run: |
-          # git add "**/package.json"
-          # git commit -m "chore: release ${{ env.NEW_VERSION }} [skip-ci]"
-          git status
+          git add "**/package.json"
+          git add "**/package-lock.json"
+          git commit -m "chore: release ${{ env.NEW_VERSION }} [skip-ci]"
           git push origin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
