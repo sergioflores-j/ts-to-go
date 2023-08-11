@@ -35,17 +35,18 @@ jobs:
          git config --global user.email "github-action-${{ github.actor }}@users.noreply.github.com"
       
       - name: Set package version
-        run: npm version --no-git-tag-version ${{ env.NEW_VERSION }}
+        run: npm version ${{ env.NEW_VERSION }} --no-git-tag-version --workspaces
 
       - name: Publish to NPM
-        run: npm publish --access public
+        run: npm publish --access public --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Commit package.json changes
         run: |
-          git add "**/package.json"
-          git commit -m "chore: release ${{ env.NEW_VERSION }} [skip-ci]"
+          # git add "**/package.json"
+          # git commit -m "chore: release ${{ env.NEW_VERSION }} [skip-ci]"
+          git status
           git push origin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
