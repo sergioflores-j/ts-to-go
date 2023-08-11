@@ -6,8 +6,6 @@
     },
     "lint": {},
     "test": {},
-    "type-check": {},
-    "publish": {},
-    "set-version": {}
+    "type-check": {}
   }
 }

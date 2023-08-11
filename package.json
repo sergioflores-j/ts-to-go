@@ -8,9 +8,7 @@
     "lint": "npx turbo run type-check lint",
     "lint-affected": "npx turbo run type-check lint --filter=[$FROM_COMMIT...$TO_COMMIT]",
     "test": "npx turbo run test",
-    "test-affected": "npx turbo run test --filter=[$FROM_COMMIT...$TO_COMMIT]",
-    "publish": "npx turbo run publish",
-    "set-version": "npx turbo run set-version"
+    "test-affected": "npx turbo run test --filter=[$FROM_COMMIT...$TO_COMMIT]"
   },
   "author": "Sergio Flores & Richard Devegili",
   "license": "ISC",
