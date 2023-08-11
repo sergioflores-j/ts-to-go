@@ -36,17 +36,17 @@ jobs:
       - name: Set package version
         run: npm version ${{ env.NEW_VERSION }} --no-git-tag-version --workspaces
 
+      # TODO: remove examples workspace from publish
       - name: Publish to NPM
         run: npm publish --access public --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      # TODO: fix skip-ci & remove examples workspace
       - name: Commit package.json changes
         run: |
           git add "**/package.json"
           git add "package-lock.json"
-          git commit -m "chore: release ${{ env.NEW_VERSION }} [skip-ci]"
-          git push origin HEAD:main
+          git commit -m "chore: release ${{ env.NEW_VERSION }} [skip ci]"
+          git push origin HEAD:main --force
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
