@@ -17,6 +17,10 @@ jobs:
           node-version: '16.x'
       - run: npm ci
       - run: npm run build
-      - run: npm run publish
+      # TODO: Check if it updates package.json version
+      - name: Set package version
+        run: npm run set-version
+      - name: Publish to NPM
+        run: npm run publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

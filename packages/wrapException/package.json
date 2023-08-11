@@ -10,7 +10,8 @@
     "lint": "npx eslint . --ext .ts",
     "test": "npx jest",
     "type-check": "npx --package=typescript tsc --noEmit",
-    "publish": "npm publish --access public"
+    "publish": "npm publish --access public",
+    "set-version": "npm version from-git"
   },
   "author": "Sergio Flores & Richard Devegili",
   "license": "ISC"
