@@ -1,6 +1,6 @@
 {
   "name": "@ts-to-go/root",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TS utilities ready to go",
   "scripts": {
     "build": "npx turbo run build",
@@ -12,7 +12,9 @@
   },
   "author": "Sergio Flores & Richard Devegili",
   "license": "ISC",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "engines": {
     "node": ">= 16"
   },
