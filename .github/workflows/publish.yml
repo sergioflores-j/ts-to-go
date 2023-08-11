@@ -42,10 +42,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      # TODO: fix skip-ci and git push
       - name: Commit package.json changes
         run: |
           git add "**/package.json"
-          git add "**/package-lock.json"
+          git add "package-lock.json"
           git commit -m "chore: release ${{ env.NEW_VERSION }} [skip-ci]"
           git push origin
         env:
