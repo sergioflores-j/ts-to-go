@@ -48,6 +48,6 @@ jobs:
           git add "**/package.json"
           git add "package-lock.json"
           git commit -m "chore: release ${{ env.NEW_VERSION }} [skip-ci]"
-          git push origin
+          git push origin HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
