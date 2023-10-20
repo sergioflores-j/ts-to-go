@@ -124,3 +124,21 @@ describe('wrapException - sync', () => {
     expect(error).toHaveProperty('message', 'test error');
   });
 });
+
+describe('wrapException - advanced usage', () => {
+  // TODO: write more scenarios
+  it('should return the error in the first tuple position when the promise rejects using the custom type', async () => {
+    const wrappedFn = wrapException<string, Error, [condition: boolean]>(
+      // eslint-disable-next-line @typescript-eslint/require-await
+      async (condition: boolean) => {
+        if (condition) return 'somevalue';
+
+        throw new Error('test error');
+      },
+    );
+
+    const [error] = await wrappedFn(false);
+
+    expect(error).toBeInstanceOf(Error);
+  });
+});
