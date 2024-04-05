@@ -1,6 +1,6 @@
 {
   "name": "@ts-to-go/examples",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "TS to go examples",
   "scripts": {
     "lint": "npx eslint . --ext .ts",
