@@ -8,9 +8,19 @@ export type SyncFn<Args extends unknown[], Response> = (
   ...args: Args
 ) => Response;
 
-export type WrappedResponse<Response, ErrorTypes = unknown> =
-  | readonly [undefined, Response] // Success
-  | readonly [ErrorTypes, undefined]; // Error
+export type ErrorResponse<ErrorTypes = unknown> = readonly [
+  error: ErrorTypes,
+  response: undefined,
+];
+
+export type SuccessResponse<Response> = readonly [
+  error: undefined,
+  response: Response,
+];
+
+export type WrappedResponse<Response, ErrorTypes> =
+  | SuccessResponse<Response>
+  | ErrorResponse<ErrorTypes>;
 
 const isPromise = <Args extends unknown[], Response>(
   value:
@@ -28,6 +38,17 @@ const isPromise = <Args extends unknown[], Response>(
     nodeUtilTypes.isAsyncFunction(value) ||
     nodeUtilTypes.isPromise(value)
   );
+};
+
+const getResponse = <Response, ErrorTypes>(
+  { isError }: { isError: boolean },
+  returnValue: unknown,
+): WrappedResponse<Response, ErrorTypes> => {
+  if (isError) {
+    return [returnValue as ErrorTypes, undefined] as ErrorResponse<ErrorTypes>;
+  }
+
+  return [undefined, returnValue as Response] as SuccessResponse<Response>;
 };
 
 // async
@@ -115,14 +136,16 @@ function wrapException<Response, ErrorTypes, Args extends unknown[]>(
         const result = await Promise.resolve(
           typeof fnExec === 'function' ? fnExec(...args) : fnExec,
         )
-          .then((r) => [undefined, r] as const)
+          .then((r) => getResponse<Response, ErrorTypes>({ isError: false }, r))
           // Catches rejects from Promises & throws from AsyncFunctions - avoids "Unhandled promise rejection"
-          .catch((error: unknown) => [error as ErrorTypes, undefined] as const);
+          .catch((error: unknown) =>
+            getResponse<Response, ErrorTypes>({ isError: true }, error),
+          );
 
         return result;
       } catch (error: unknown) {
         // Catches errors from the above execution
-        return [error as ErrorTypes, undefined] as const;
+        return getResponse<Response, ErrorTypes>({ isError: true }, error);
       }
     };
 
@@ -148,9 +171,9 @@ function wrapException<Response, ErrorTypes, Args extends unknown[]>(
 
       const result = possiblePromise as Response;
 
-      return [undefined, result] as const;
+      return getResponse<Response, ErrorTypes>({ isError: false }, result);
     } catch (error: unknown) {
-      return [error as ErrorTypes, undefined] as const;
+      return getResponse<Response, ErrorTypes>({ isError: true }, error);
     }
   };
 }
