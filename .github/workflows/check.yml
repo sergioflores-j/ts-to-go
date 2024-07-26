@@ -9,9 +9,6 @@ jobs:
   check_code:
     name: Build and Test
     runs-on: ubuntu-latest
-    env:
-      FROM_COMMIT: ${{github.event.pull_request.base.sha}}
-      TO_COMMIT: ${{github.event.pull_request.head.sha}}
     steps:
       - name: Cancel if [skip ci]
         if: contains(github.event.head_commit.message, '[skip ci]')
@@ -44,6 +41,6 @@ jobs:
         run: npm ci
       
       # TODO: use parallel jobs?
-      - run: npm run build-affected
-      - run: npm run lint-affected
-      - run: npm run test-affected
+      - run: npm run build
+      - run: npm run lint
+      - run: npm run test
