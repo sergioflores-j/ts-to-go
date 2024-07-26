@@ -10,10 +10,10 @@
     "url": "https://github.com/sergioflores-j/ts-to-go.git"
   },
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --target=node16 --outfile=dist/index.js && npx --package=typescript tsc --project ./tsconfig.lib.json",
-    "lint": "npx eslint . --ext .ts",
-    "test": "npx jest",
-    "type-check": "npx --package=typescript tsc --noEmit",
+    "build": "esbuild --version && esbuild src/index.ts --bundle --platform=node --target=node16 --outfile=dist/index.js && tsc --version && tsc --project ./tsconfig.lib.json",
+    "lint": "eslint . --ext .ts",
+    "test": "jest",
+    "type-check": "tsc --version && tsc --noEmit",
     "set-version": "npm version $VERSION"
   },
   "author": "Sergio Flores & Richard Devegili",

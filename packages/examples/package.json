@@ -3,8 +3,8 @@
   "version": "1.1.1",
   "description": "TS to go examples",
   "scripts": {
-    "lint": "npx eslint . --ext .ts",
-    "test": "npx jest --passWithNoTests",
+    "lint": "eslint . --ext .ts",
+    "test": "jest --passWithNoTests",
     "type-check": "tsc --noEmit"
   },
   "author": "Sergio Flores & Richard Devegili",
