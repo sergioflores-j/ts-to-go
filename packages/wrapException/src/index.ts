@@ -1,18 +1,18 @@
 import { types as nodeUtilTypes } from 'node:util';
 
-export type AsyncFn<Args extends unknown[], Response = unknown> = (
+export type AsyncFn<Args extends unknown[], Response> = (
   ...args: Args
 ) => Promise<Response>;
 
-export type SyncFn<Args extends unknown[], Response = unknown> = (
+export type SyncFn<Args extends unknown[], Response> = (
   ...args: Args
 ) => Response;
 
-export type WrappedResponse<Response = unknown> =
+export type WrappedResponse<Response, ErrorTypes = unknown> =
   | readonly [undefined, Response] // Success
-  | readonly [unknown, undefined]; // Error
+  | readonly [ErrorTypes, undefined]; // Error
 
-const isPromise = <Args extends unknown[], Response = unknown>(
+const isPromise = <Args extends unknown[], Response>(
   value:
     | AsyncFn<Args, Response>
     | SyncFn<Args, Response>
@@ -31,19 +31,19 @@ const isPromise = <Args extends unknown[], Response = unknown>(
 };
 
 // async
-function wrapException<Args extends unknown[], Response>(
+function wrapException<Response, ErrorTypes, Args extends unknown[]>(
   fn: AsyncFn<Args, Response>,
-): (...args: Args) => Promise<WrappedResponse<Response>>;
+): (...args: Args) => Promise<WrappedResponse<Response, ErrorTypes>>;
 
 // fully sync
-function wrapException<Args extends unknown[], Response>(
+function wrapException<Response, ErrorTypes, Args extends unknown[]>(
   fn: SyncFn<Args, Response>,
-): (...args: Args) => WrappedResponse<Response>;
+): (...args: Args) => WrappedResponse<Response, ErrorTypes>;
 
 // sync with promise on return
-function wrapException<Args extends unknown[], Response>(
+function wrapException<Response, ErrorTypes, Args extends unknown[]>(
   fn: SyncFn<Args, PromiseLike<Response>>,
-): (...args: Args) => Promise<WrappedResponse<Response>>;
+): (...args: Args) => Promise<WrappedResponse<Response, ErrorTypes>>;
 
 /**
  * Wraps either async and sync functions
@@ -95,17 +95,21 @@ function wrapException<Args extends unknown[], Response>(
 
   console.log('bar', error, result); // bar bar undefined
   */
-function wrapException<Args extends unknown[], Response>(
+function wrapException<Response, ErrorTypes, Args extends unknown[]>(
   fn:
     | AsyncFn<Args, Response>
     | SyncFn<Args, Response>
     | SyncFn<Args, PromiseLike<Response>>,
 ): (
-  ...args: Args
-) => Promise<WrappedResponse<Response>> | WrappedResponse<Response> {
+  ...args: [...Args]
+) =>
+  | Promise<WrappedResponse<Response, ErrorTypes>>
+  | WrappedResponse<Response, ErrorTypes> {
   const handlePromise =
     (fnExec: AsyncFn<Args, Response>) =>
-    async (...args: Args): Promise<WrappedResponse<Response>> => {
+    async (
+      ...args: Parameters<typeof fn>
+    ): Promise<WrappedResponse<Response, ErrorTypes>> => {
       try {
         // Cast FN to Promise
         const result = await Promise.resolve(
@@ -113,12 +117,12 @@ function wrapException<Args extends unknown[], Response>(
         )
           .then((r) => [undefined, r] as const)
           // Catches rejects from Promises & throws from AsyncFunctions - avoids "Unhandled promise rejection"
-          .catch((error: unknown) => [error, undefined] as const);
+          .catch((error: unknown) => [error as ErrorTypes, undefined] as const);
 
         return result;
       } catch (error: unknown) {
         // Catches errors from the above execution
-        return [error, undefined] as const;
+        return [error as ErrorTypes, undefined] as const;
       }
     };
 
@@ -129,8 +133,10 @@ function wrapException<Args extends unknown[], Response>(
 
   // Handles sync functions
   return (
-    ...args: Args
-  ): WrappedResponse<Response> | Promise<WrappedResponse<Response>> => {
+    ...args: Parameters<typeof fn>
+  ):
+    | WrappedResponse<Response, ErrorTypes>
+    | Promise<WrappedResponse<Response, ErrorTypes>> => {
     // Handles sync functions
     try {
       const possiblePromise = fn(...args);
@@ -144,7 +150,7 @@ function wrapException<Args extends unknown[], Response>(
 
       return [undefined, result] as const;
     } catch (error: unknown) {
-      return [error, undefined] as const;
+      return [error as ErrorTypes, undefined] as const;
     }
   };
 }
