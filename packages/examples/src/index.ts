@@ -60,6 +60,7 @@ const isInternalError = (error: unknown): error is Error => {
 
 // This is a helper function to check if an error is present. If so, then the result is undefined
 const hasError = <Result>(
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   error: unknown | undefined,
   result: Result | undefined,
 ): result is undefined => {
