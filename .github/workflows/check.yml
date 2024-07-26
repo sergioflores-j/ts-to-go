@@ -9,6 +9,9 @@ jobs:
   check_code:
     name: Build and Test
     runs-on: ubuntu-latest
+    env:
+      FROM_COMMIT: ${{github.event.pull_request.base.sha}}
+      TO_COMMIT: ${{github.event.pull_request.head.sha}}
     steps:
       - name: Cancel if [skip ci]
         if: contains(github.event.head_commit.message, '[skip ci]')
@@ -22,17 +25,25 @@ jobs:
         name: Checkout
         with:
           fetch-depth: 2
+      
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with: 
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
   
       - name: Setup Node.js environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
       
       # TODO: use parallel jobs?
-      - run: npm run build
-      - run: npm run lint
-      - run: npm run test
+      - run: npm run build-affected
+      - run: npm run lint-affected
+      - run: npm run test-affected
