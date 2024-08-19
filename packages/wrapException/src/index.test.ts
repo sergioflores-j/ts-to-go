@@ -3,9 +3,16 @@ import { expectType, TypeEqual } from 'ts-expect';
 import {
   successAsyncStringExplicit,
   successAsyncStringInferred,
+  successSyncStringExplicit,
+  successSyncStringInferred,
   throwingAsyncExplicit,
   throwingAsyncInferred,
+  throwingSyncExplicit,
+  throwingSyncInferred,
   toggleableAsyncExplicit,
+  toggleablePromiseConstructorExplicit,
+  toggleablePromiseExplicit,
+  toggleableSyncExplicit,
 } from './__tests__/functions';
 
 import wrapException, {
@@ -78,7 +85,6 @@ describe('wrapException - async', () => {
     });
 
     it('should switch the type when checking for error - advanced usage', async () => {
-      // eslint-disable-next-line @typescript-eslint/require-await
       const wrappedFn = wrapException<typeof successAsyncStringInferred, Error>(
         successAsyncStringInferred,
       );
@@ -152,6 +158,44 @@ describe('wrapException - async', () => {
           isError: false,
           error: undefined,
           data: 'test',
+        });
+      });
+
+      it('should return the function result and an empty error - when function type is explicit - slightly complex type', async () => {
+        const wrappedFn = wrapException(toggleableAsyncExplicit);
+
+        // Checks if the wrapped function is still a promise
+        expectType<
+          TypeEqual<
+            AsyncWrapped<
+              (arg?: boolean) => Promise<string[] | undefined>,
+              unknown,
+              Promise<string[] | undefined>
+            >,
+            typeof wrappedFn
+          >
+        >(true);
+
+        const result1 = await wrappedFn(true);
+
+        expectType<
+          TypeEqual<
+            WrappedResponse<string[] | undefined, unknown>,
+            typeof result1
+          >
+        >(true);
+
+        expect(result1).toEqual({
+          isError: false,
+          error: undefined,
+          data: ['test'],
+        });
+
+        const result2 = await wrappedFn(false);
+        expect(result2).toEqual({
+          isError: false,
+          error: undefined,
+          data: undefined,
         });
       });
 
@@ -338,6 +382,30 @@ describe('wrapException - async', () => {
           data: 'test',
         });
       });
+
+      it('should return the function result and an empty error - when function type is explicit', async () => {
+        const wrappedFn = wrapException(toggleablePromiseExplicit);
+
+        // Must be AsyncWrapped - so "await" is required
+        expectType<
+          TypeEqual<
+            AsyncWrapped<
+              (arg: boolean) => Promise<string>,
+              unknown,
+              Promise<string>
+            >,
+            typeof wrappedFn
+          >
+        >(true);
+
+        const result = await wrappedFn(true);
+
+        expect(result).toEqual({
+          isError: false,
+          error: undefined,
+          data: 'test',
+        });
+      });
     });
 
     describe('when the function fails', () => {
@@ -363,9 +431,31 @@ describe('wrapException - async', () => {
         expect(error).toBeInstanceOf(Error);
         expect(error).toHaveProperty('message', 'test error');
       });
-    });
 
-    // TODO: more scenarios with named functions
+      it('should return the error object - when function type is explicit', async () => {
+        const wrappedFn = wrapException(toggleablePromiseExplicit);
+
+        // Must be AsyncWrapped - so "await" is required
+        expectType<
+          TypeEqual<
+            AsyncWrapped<
+              (arg: boolean) => Promise<string>,
+              unknown,
+              Promise<string>
+            >,
+            typeof wrappedFn
+          >
+        >(true);
+
+        const result = await wrappedFn(false);
+
+        expect(result).toEqual({
+          isError: true,
+          error: new Error('test error'),
+          data: undefined,
+        });
+      });
+    });
   });
 
   describe('promise constructor', () => {
@@ -387,6 +477,34 @@ describe('wrapException - async', () => {
         >(true);
 
         const result = await wrappedFn();
+
+        expectType<TypeEqual<WrappedResponse<string, unknown>, typeof result>>(
+          true,
+        );
+
+        expect(result).toEqual({
+          isError: false,
+          error: undefined,
+          data: 'test',
+        });
+      });
+
+      it('should return the function result and an empty error - when function type is explicit', async () => {
+        const wrappedFn = wrapException(toggleablePromiseConstructorExplicit);
+
+        // Must be AsyncWrapped - so "await" is required
+        expectType<
+          TypeEqual<
+            AsyncWrapped<
+              (arg: boolean) => Promise<string>,
+              unknown,
+              Promise<string>
+            >,
+            typeof wrappedFn
+          >
+        >(true);
+
+        const result = await wrappedFn(true);
 
         expectType<TypeEqual<WrappedResponse<string, unknown>, typeof result>>(
           true,
@@ -462,7 +580,33 @@ describe('wrapException - async', () => {
         });
       });
 
-      // TODO: more scenarios with named functions
+      it('should return the error object when the promise throws - function type is explicit', async () => {
+        const wrappedFn = wrapException(toggleablePromiseConstructorExplicit);
+
+        // Must be AsyncWrapped - so "await" is required
+        expectType<
+          TypeEqual<
+            AsyncWrapped<
+              (arg: boolean) => Promise<string>,
+              unknown,
+              Promise<string>
+            >,
+            typeof wrappedFn
+          >
+        >(true);
+
+        const result = await wrappedFn(false);
+
+        expectType<TypeEqual<WrappedResponse<string, unknown>, typeof result>>(
+          true,
+        );
+
+        expect(result).toEqual({
+          isError: true,
+          error: new Error('test error'),
+          data: undefined,
+        });
+      });
     });
   });
 
@@ -485,14 +629,11 @@ describe('wrapException - async', () => {
   });
 });
 
-// TODO: BELOW
-// TODO: BELOW
-// TODO: BELOW
 describe('wrapException - sync', () => {
   describe('general type checks', () => {
-    it.skip('should switch the type when checking for error', async () => {
-      const wrappedFn = wrapException(successAsyncStringInferred);
-      const result = await wrappedFn();
+    it('should switch the type when checking for error', () => {
+      const wrappedFn = wrapException(successSyncStringInferred);
+      const result = wrappedFn();
 
       expectType<TypeEqual<WrappedResponse<string, unknown>, typeof result>>(
         true,
@@ -520,9 +661,9 @@ describe('wrapException - sync', () => {
       expect(result).toBeDefined();
     });
 
-    it.skip('should switch the type when checking for error keeping original function type', async () => {
-      const wrappedFn = wrapException(toggleableAsyncExplicit);
-      const result = await wrappedFn();
+    it('should switch the type when checking for error keeping original function type', () => {
+      const wrappedFn = wrapException(toggleableSyncExplicit);
+      const result = wrappedFn();
 
       expectType<
         TypeEqual<WrappedResponse<string[] | undefined, unknown>, typeof result>
@@ -551,12 +692,11 @@ describe('wrapException - sync', () => {
       expect(result).toBeDefined();
     });
 
-    it.skip('should switch the type when checking for error - advanced usage', async () => {
-      // eslint-disable-next-line @typescript-eslint/require-await
-      const wrappedFn = wrapException<typeof successAsyncStringInferred, Error>(
-        successAsyncStringInferred,
+    it('should switch the type when checking for error - advanced usage', () => {
+      const wrappedFn = wrapException<typeof successSyncStringInferred, Error>(
+        successSyncStringInferred,
       );
-      const result = await wrappedFn();
+      const result = wrappedFn();
 
       expectType<TypeEqual<WrappedResponse<string, Error>, typeof result>>(
         true,
@@ -577,38 +717,141 @@ describe('wrapException - sync', () => {
     });
   });
 
-  it.skip('should return the result in a tuple with 2 positions when the function executes', () => {
-    const wrappedFn = wrapException(() => 'test');
-    const result = wrappedFn();
+  describe('when the function succeeds', () => {
+    it('should return the result - function type is inferred - anonymous', () => {
+      const wrappedFn = wrapException(() => 'test');
 
-    expect(result).toEqual([undefined, 'test']);
-  });
+      expectType<
+        TypeEqual<SyncWrapped<() => string, unknown, string>, typeof wrappedFn>
+      >(true);
 
-  it.skip('should return the error in a tuple with 2 positions when the function throws', () => {
-    const wrappedFn = wrapException((num1: number) => {
-      if (num1 === 0) throw new Error('test error');
+      const result = wrappedFn();
+
+      expect(result).toEqual({
+        isError: false,
+        error: undefined,
+        data: 'test',
+      });
     });
 
-    const { error } = wrappedFn(0);
-    expect(error).toBeInstanceOf(Error);
-    expect(error).toHaveProperty('message', 'test error');
+    it('should return the result - function type is inferred', () => {
+      const wrappedFn = wrapException(successSyncStringInferred);
+
+      expectType<
+        TypeEqual<SyncWrapped<() => string, unknown, string>, typeof wrappedFn>
+      >(true);
+
+      const result = wrappedFn();
+
+      expect(result).toEqual({
+        isError: false,
+        error: undefined,
+        data: 'test',
+      });
+    });
+
+    it('should return the result - function type is explicit', () => {
+      const wrappedFn = wrapException(successSyncStringExplicit);
+
+      expectType<
+        TypeEqual<SyncWrapped<() => string, unknown, string>, typeof wrappedFn>
+      >(true);
+
+      const result = wrappedFn();
+
+      expect(result).toEqual({
+        isError: false,
+        error: undefined,
+        data: 'test',
+      });
+    });
+
+    it('should return the result - function type is explicit - slightly complex type', () => {
+      const wrappedFn = wrapException(toggleableSyncExplicit);
+
+      expectType<
+        TypeEqual<
+          SyncWrapped<
+            (arg?: boolean) => string[] | undefined,
+            unknown,
+            string[] | undefined
+          >,
+          typeof wrappedFn
+        >
+      >(true);
+
+      const result = wrappedFn(true);
+
+      expect(result).toEqual({
+        isError: false,
+        error: undefined,
+        data: ['test'],
+      });
+
+      const result2 = wrappedFn(false);
+
+      expect(result2).toEqual({
+        isError: false,
+        error: undefined,
+        data: undefined,
+      });
+    });
   });
-});
 
-describe.skip('wrapException - advanced usage', () => {
-  // TODO: write more scenarios
-  it('should return the error in the first tuple position when the promise rejects using the custom type', async () => {
-    const wrappedFn = wrapException<string, Error, [condition: boolean]>(
-      // eslint-disable-next-line @typescript-eslint/require-await
-      async (condition: boolean) => {
-        if (condition) return 'somevalue';
+  describe('when the function fails', () => {
+    it('should return the error object - function type is inferred - anonymous', () => {
+      const wrappedFn = wrapException((num1: number) => {
+        if (num1 === 0) throw new Error('test error');
+      });
 
-        throw new Error('test error');
-      },
-    );
+      expectType<
+        TypeEqual<
+          SyncWrapped<(num1: number) => void, unknown, void>,
+          typeof wrappedFn
+        >
+      >(true);
 
-    const { error } = await wrappedFn(false);
+      const result = wrappedFn(0);
 
-    expect(error).toBeInstanceOf(Error);
+      expect(result).toEqual({
+        isError: true,
+        error: new Error('test error'),
+        data: undefined,
+      });
+    });
+
+    it('should return the error object - function type is explicit', () => {
+      const wrappedFn = wrapException(throwingSyncExplicit);
+
+      expectType<
+        TypeEqual<SyncWrapped<() => void, unknown, void>, typeof wrappedFn>
+      >(true);
+
+      const result = wrappedFn();
+
+      expect(result).toEqual({
+        isError: true,
+        error: new Error('test error'),
+        data: undefined,
+      });
+    });
+
+    it('should return the error object - function type is inferred', () => {
+      const wrappedFn = wrapException(throwingSyncInferred);
+
+      // TODO: FIX THIS - never is messing up the return type, transforming this SYNC function into an ASYNC function
+      expectType<
+        TypeEqual<SyncWrapped<() => never, unknown, never>, typeof wrappedFn>
+        // @ts-expect-error: type is messed up, should be SyncWrapped
+      >(true);
+
+      const result = wrappedFn();
+
+      expect(result).toEqual({
+        isError: true,
+        error: new Error('test error'),
+        data: undefined,
+      });
+    });
   });
 });

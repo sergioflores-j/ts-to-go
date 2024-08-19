@@ -100,6 +100,7 @@ function wrapException<
   Response = ReturnType<Fn>,
 >(fn: Fn): SyncWrapped<Fn, ErrorTypes, Response>;
 
+// TODO: FIX EXAMPLES AND DOCS
 /**
  * Wraps either async and sync functions
  * Returns a comprehensible tuple interface for better error handling
