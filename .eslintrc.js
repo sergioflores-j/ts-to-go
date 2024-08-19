@@ -41,6 +41,7 @@ module.exports = {
   rules: {
     // TYPESCRIPT
     '@typescript-eslint/no-floating-promises': ['error'],
+    "@typescript-eslint/ban-ts-comment": ["error", {'ts-ignore': 'allow-with-description', 'ts-expect-error': 'allow-with-description'}],
 
     // CODE STYLE
     camelcase: 'off',
@@ -56,5 +57,13 @@ module.exports = {
       { code: 120, ignoreStrings: true, ignoreTemplateLiterals: true },
     ],
     'import/order': ['error', { 'newlines-between': 'always' }],
+    'import/no-extraneous-dependencies': [
+      'error',
+      {
+        // allow imports from devDependencies for test files
+        devDependencies: ['**/*.test.ts'],
+        packageDir: __dirname
+      },
+    ],
   },
 };

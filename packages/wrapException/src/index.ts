@@ -2,34 +2,51 @@ import { types as nodeUtilTypes } from 'node:util';
 
 export type AsyncFn<Args extends unknown[], Response> = (
   ...args: Args
-) => Promise<Response>;
+) => PromiseLike<Response>;
 
 export type SyncFn<Args extends unknown[], Response> = (
   ...args: Args
 ) => Response;
 
-export type ErrorResponse<ErrorTypes = unknown> = readonly [
-  error: ErrorTypes,
-  response: undefined,
-];
+export type ErrorResponse<ErrorTypes = unknown> = {
+  isError: true;
+  /**
+   * This contains the error thrown by the function.
+   */
+  error: ErrorTypes;
+  /**
+   * @warning check `isError` property before accessing `data` or `error`
+   */
+  data: unknown;
+};
 
-export type SuccessResponse<Response> = readonly [
-  error: undefined,
-  response: Response,
-];
+export type SuccessResponse<Response = unknown> = {
+  isError: false;
+  /**
+   * undefined if the function executed successfully
+   */
+  error: undefined;
+  /**
+   * This contains the successful result of the function.
+   */
+  data: Response;
+};
 
 export type WrappedResponse<Response, ErrorTypes> =
   | SuccessResponse<Response>
   | ErrorResponse<ErrorTypes>;
 
-const isPromise = <Args extends unknown[], Response>(
+const isPromise = <
+  Fn extends (...args: unknown[]) => unknown,
+  Response = ReturnType<Fn>,
+>(
   value:
-    | AsyncFn<Args, Response>
-    | SyncFn<Args, Response>
-    | SyncFn<Args, PromiseLike<Response>>
+    | AsyncFn<Parameters<Fn>, Response>
+    | SyncFn<Parameters<Fn>, Response>
+    | SyncFn<Parameters<Fn>, PromiseLike<Response>>
     | Response
     | PromiseLike<Response>,
-): value is AsyncFn<Args, Response> => {
+): value is AsyncFn<Parameters<Fn>, Response> => {
   return (
     (value != null &&
       (typeof value === 'object' || typeof value === 'function') &&
@@ -45,26 +62,43 @@ const getResponse = <Response, ErrorTypes>(
   returnValue: unknown,
 ): WrappedResponse<Response, ErrorTypes> => {
   if (isError) {
-    return [returnValue as ErrorTypes, undefined] as ErrorResponse<ErrorTypes>;
+    return { isError, error: returnValue as ErrorTypes, data: undefined };
   }
 
-  return [undefined, returnValue as Response] as SuccessResponse<Response>;
+  return { isError, error: undefined, data: returnValue as Response };
 };
 
-// async
-function wrapException<Response, ErrorTypes, Args extends unknown[]>(
-  fn: AsyncFn<Args, Response>,
-): (...args: Args) => Promise<WrappedResponse<Response, ErrorTypes>>;
+export type AsyncWrapped<
+  Fn extends AsyncFn<any[], any>, // any because we want to accept any kind of function parameter/return
+  ErrorTypes = unknown,
+  Response = ReturnType<Fn>,
+> = (
+  ...args: Parameters<Fn>
+) => Promise<WrappedResponse<Awaited<Response>, ErrorTypes>>;
 
-// fully sync
-function wrapException<Response, ErrorTypes, Args extends unknown[]>(
-  fn: SyncFn<Args, Response>,
-): (...args: Args) => WrappedResponse<Response, ErrorTypes>;
+export type SyncWrapped<
+  Fn extends SyncFn<any[], any>, // any because we want to accept any kind of function parameter/return
+  ErrorTypes = unknown,
+  Response = ReturnType<Fn>,
+> = (...args: Parameters<Fn>) => WrappedResponse<Response, ErrorTypes>;
 
-// sync with promise on return
-function wrapException<Response, ErrorTypes, Args extends unknown[]>(
-  fn: SyncFn<Args, PromiseLike<Response>>,
-): (...args: Args) => Promise<WrappedResponse<Response, ErrorTypes>>;
+type NotPromise<T> = T extends Promise<unknown> ? never : T;
+
+// ASYNC
+function wrapException<
+  // any because we want to accept any kind of function parameter, return must be a promise
+  Fn extends (...args: any[]) => PromiseLike<unknown>,
+  ErrorTypes,
+  Response = ReturnType<Fn>,
+>(fn: Fn): AsyncWrapped<Fn, ErrorTypes, Response>;
+
+// SYNC
+function wrapException<
+  // any because we want to accept any kind of function parameter, return must be NOT a promise
+  Fn extends (...args: any[]) => NotPromise<Response>,
+  ErrorTypes,
+  Response = ReturnType<Fn>,
+>(fn: Fn): SyncWrapped<Fn, ErrorTypes, Response>;
 
 /**
  * Wraps either async and sync functions
@@ -116,36 +150,48 @@ function wrapException<Response, ErrorTypes, Args extends unknown[]>(
 
   console.log('bar', error, result); // bar bar undefined
   */
-function wrapException<Response, ErrorTypes, Args extends unknown[]>(
-  fn:
-    | AsyncFn<Args, Response>
-    | SyncFn<Args, Response>
-    | SyncFn<Args, PromiseLike<Response>>,
-): (
-  ...args: [...Args]
-) =>
-  | Promise<WrappedResponse<Response, ErrorTypes>>
-  | WrappedResponse<Response, ErrorTypes> {
+
+function wrapException<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Fn extends (...args: any[]) => any, // any is important to accept any kind of function as a parameter
+  ErrorTypes,
+  Response = ReturnType<Fn>,
+>(
+  fn: Fn,
+):
+  | AsyncWrapped<Fn, ErrorTypes, Response>
+  | SyncWrapped<Fn, ErrorTypes, Response> {
   const handlePromise =
-    (fnExec: AsyncFn<Args, Response>) =>
+    (fnExec: AsyncFn<Parameters<Fn>, Response> | PromiseLike<Response>) =>
     async (
-      ...args: Parameters<typeof fn>
-    ): Promise<WrappedResponse<Response, ErrorTypes>> => {
+      ...args: Parameters<Fn>
+    ): ReturnType<AsyncWrapped<Fn, ErrorTypes, Response>> => {
       try {
-        // Cast FN to Promise
-        const result = await Promise.resolve(
+        // Cast fnExec to Promise, will work if value is a Promise (e.g. Promise.resolve) or an AsyncFunction
+        const result: WrappedResponse<
+          Awaited<Response>,
+          ErrorTypes
+        > = await Promise.resolve(
           typeof fnExec === 'function' ? fnExec(...args) : fnExec,
         )
-          .then((r) => getResponse<Response, ErrorTypes>({ isError: false }, r))
+          .then((r) =>
+            getResponse<Awaited<Response>, ErrorTypes>({ isError: false }, r),
+          )
           // Catches rejects from Promises & throws from AsyncFunctions - avoids "Unhandled promise rejection"
           .catch((error: unknown) =>
-            getResponse<Response, ErrorTypes>({ isError: true }, error),
+            getResponse<Awaited<Response>, ErrorTypes>(
+              { isError: true },
+              error,
+            ),
           );
 
         return result;
       } catch (error: unknown) {
         // Catches errors from the above execution
-        return getResponse<Response, ErrorTypes>({ isError: true }, error);
+        return getResponse<Awaited<Response>, ErrorTypes>(
+          { isError: true },
+          error,
+        );
       }
     };
 
@@ -155,27 +201,27 @@ function wrapException<Response, ErrorTypes, Args extends unknown[]>(
   }
 
   // Handles sync functions
-  return (
-    ...args: Parameters<typeof fn>
-  ):
-    | WrappedResponse<Response, ErrorTypes>
-    | Promise<WrappedResponse<Response, ErrorTypes>> => {
+  const handleSyncAndPossiblePromise = (...args: Parameters<Fn>) => {
     // Handles sync functions
     try {
-      const possiblePromise = fn(...args);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const maybeAPromise = fn(...args);
 
-      // Handles unknown functions
-      if (isPromise(possiblePromise)) {
-        return handlePromise(possiblePromise)(...args);
+      // E.g. function returns "Promise.resolve"
+      if (isPromise(maybeAPromise)) {
+        return handlePromise(maybeAPromise)(...args);
       }
 
-      const result = possiblePromise as Response;
+      const result = maybeAPromise as Response;
 
       return getResponse<Response, ErrorTypes>({ isError: false }, result);
     } catch (error: unknown) {
       return getResponse<Response, ErrorTypes>({ isError: true }, error);
     }
   };
+
+  // @ts-ignore: can't find a way to type this properly - casting to avoid TS error
+  return handleSyncAndPossiblePromise as SyncWrapped<Fn, ErrorTypes, Response>;
 }
 
 export default wrapException;
