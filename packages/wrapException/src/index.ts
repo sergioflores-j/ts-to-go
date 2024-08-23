@@ -69,7 +69,7 @@ const getResponse = <Response, ErrorTypes>(
 };
 
 export type AsyncWrapped<
-  Fn extends AsyncFn<any[], any>, // any because we want to accept any kind of function parameter/return
+  Fn extends AsyncFn<Parameters<Fn>, unknown>,
   ErrorTypes = unknown,
   Response = ReturnType<Fn>,
 > = (
@@ -77,34 +77,43 @@ export type AsyncWrapped<
 ) => Promise<WrappedResponse<Awaited<Response>, ErrorTypes>>;
 
 export type SyncWrapped<
-  Fn extends SyncFn<any[], any>, // any because we want to accept any kind of function parameter/return
+  Fn extends SyncFn<Parameters<Fn>, Response>,
   ErrorTypes = unknown,
   Response = ReturnType<Fn>,
 > = (...args: Parameters<Fn>) => WrappedResponse<Response, ErrorTypes>;
 
-type NotPromise<T> = T extends Promise<unknown> ? never : T;
+type NotPromise<T> = T extends PromiseLike<unknown> ? never : T;
 
-// ASYNC
+/**
+ * Async function wrapper
+ * Returns a comprehensible object interface for better error handling
+ */
 function wrapException<
   // any because we want to accept any kind of function parameter, return must be a promise
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Fn extends (...args: any[]) => PromiseLike<unknown>,
   ErrorTypes,
   Response = ReturnType<Fn>,
 >(fn: Fn): AsyncWrapped<Fn, ErrorTypes, Response>;
 
-// SYNC
+/**
+ * Sync function wrapper
+ * Returns a comprehensible object interface for better error handling
+ */
 function wrapException<
   // any because we want to accept any kind of function parameter, return must be NOT a promise
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Fn extends (...args: any[]) => NotPromise<Response>,
   ErrorTypes,
   Response = ReturnType<Fn>,
 >(fn: Fn): SyncWrapped<Fn, ErrorTypes, Response>;
 
-// TODO: FIX EXAMPLES AND DOCS
+// TODO: FIX EXAMPLES AND DOCS - JSDoc not working properly
 /**
  * Wraps either async and sync functions
- * Returns a comprehensible tuple interface for better error handling
- * @returns [Error, Result]
+ * Returns a comprehensible object interface for better error handling
+ * @returns { isError: true, error: ErrorType | unknown, data: undefined } 
+ * @returns { isError: false, error: undefined, data: Response }
  * @example async
   const wrappedFn = wrapException(async (param1: string) => {
     if (param1 === 'bar') throw new Error('bar');
@@ -151,7 +160,6 @@ function wrapException<
 
   console.log('bar', error, result); // bar bar undefined
   */
-
 function wrapException<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Fn extends (...args: any[]) => any, // any is important to accept any kind of function as a parameter
