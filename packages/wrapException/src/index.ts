@@ -84,9 +84,69 @@ export type SyncWrapped<
 
 type NotPromise<T> = T extends PromiseLike<unknown> ? never : T;
 
+// The examples are duplicated so JSDoc can work. See more: https://github.com/microsoft/TypeScript/issues/55056
+// TODO: have a way to have individual jsdocs and examples per overload (sync/async)
+// /**
+//  * Async function wrapper
+//  * @description
+//  * Returns a comprehensible object interface for better error handling
+//  * @overload
+//  */
+
 /**
- * Async function wrapper
+ * Wraps either async and sync functions to handle errors as return statements.
+ * @description
  * Returns a comprehensible object interface for better error handling
+ *
+ * For more examples refer to:
+ * @link https://github.com/sergioflores-j/ts-to-go
+ *
+ * @example
+ * async - simple usage
+ * ```
+ * const wrappedFn = wrapException(async (param1: string) => {
+ *    if (param1 === 'bar') throw new Error('bar');
+ *    return await Promise.resolve('foo');
+ * });
+ *
+ * const {isError, error, data} = await wrappedFn('bar');
+ *
+ * // isError: unknown
+ * // error: unknown
+ * // data: unknown
+ *
+ * if (isError) {
+ *   // error: unknown
+ *   // data: unknown
+ *   console.log('log:', error, data); // log: bar undefined
+ * } else {
+ *   // data: string
+ * }
+ * ```
+ *
+ * @example
+ * sync - simple usage
+ * ```
+ * const wrappedFn = wrapException((param1: string) => {
+ *  if (param1 === 'syncError') throw new Error('syncError');
+ *
+ *  return 'syncSuccess';
+ * });
+ *
+ * const {isError, error, data} = wrappedFn('syncError');
+ *
+ * // isError: unknown
+ * // error: unknown
+ * // data: unknown
+ *
+ * if (isError) {
+ *   // error: unknown
+ *   // data: unknown
+ *   console.log('log:', error, data); // log: syncError undefined
+ * } else {
+ *   // data: string
+ * }
+ * ```
  */
 function wrapException<
   // any because we want to accept any kind of function parameter, return must be a promise
@@ -96,9 +156,68 @@ function wrapException<
   Response = ReturnType<Fn>,
 >(fn: Fn): AsyncWrapped<Fn, ErrorTypes, Response>;
 
+// The examples are duplicated so JSDoc can work. See more: https://github.com/microsoft/TypeScript/issues/55056
+// /**
+//  * Sync function wrapper
+//  * @description
+//  * Returns a comprehensible object interface for better error handling
+//  * @overload
+//  */
+
 /**
- * Sync function wrapper
+ * Wraps either async and sync functions to handle errors as return statements.
+ * @description
  * Returns a comprehensible object interface for better error handling
+ *
+ * For more examples refer to:
+ * @link https://github.com/sergioflores-j/ts-to-go
+ *
+ * @example
+ * async - simple usage
+ * ```
+ * const wrappedFn = wrapException(async (param1: string) => {
+ *    if (param1 === 'bar') throw new Error('bar');
+ *    return await Promise.resolve('foo');
+ * });
+ *
+ * const {isError, error, data} = await wrappedFn('bar');
+ *
+ * // isError: unknown
+ * // error: unknown
+ * // data: unknown
+ *
+ * if (isError) {
+ *   // error: unknown
+ *   // data: unknown
+ *   console.log('log:', error, data); // log: bar undefined
+ * } else {
+ *   // data: string
+ * }
+ * ```
+ *
+ * @example
+ * sync - simple usage
+ * ```
+ * const wrappedFn = wrapException((param1: string) => {
+ *  if (param1 === 'syncError') throw new Error('syncError');
+ *
+ *  return 'syncSuccess';
+ * });
+ *
+ * const {isError, error, data} = wrappedFn('syncError');
+ *
+ * // isError: unknown
+ * // error: unknown
+ * // data: unknown
+ *
+ * if (isError) {
+ *   // error: unknown
+ *   // data: unknown
+ *   console.log('log:', error, data); // log: syncError undefined
+ * } else {
+ *   // data: string
+ * }
+ * ```
  */
 function wrapException<
   // any because we want to accept any kind of function parameter, return must be NOT a promise
@@ -108,58 +227,7 @@ function wrapException<
   Response = ReturnType<Fn>,
 >(fn: Fn): SyncWrapped<Fn, ErrorTypes, Response>;
 
-// TODO: FIX EXAMPLES AND DOCS - JSDoc not working properly
-/**
- * Wraps either async and sync functions
- * Returns a comprehensible object interface for better error handling
- * @returns { isError: true, error: ErrorType | unknown, data: undefined } 
- * @returns { isError: false, error: undefined, data: Response }
- * @example async
-  const wrappedFn = wrapException(async (param1: string) => {
-    if (param1 === 'bar') throw new Error('bar');
-
-    return await Promise.resolve('foo');
-  });
-
-  // wrappedFn will be typed with `const wrappedFn: (param1: string) => Promise<WrappedResponse<string>>`
-
-  const [error, result] = await wrappedFn('bar');
-
-  // error: unknown
-  // result: string | undefined
-
-  console.log('bar', error, result); // bar bar undefined
- * @example sync
-  const wrappedFn = wrapException((param1: string) => {
-    if (param1 === 'bar') throw new Error('bar');
-
-    return 'foo';
-  });
-
-  // wrappedFn will be typed with `const wrappedFn: (param1: string) => WrappedResponse<string>`
-
-  const [error, result] = wrappedFn('bar');
-
-  // error: unknown
-  // result: string | undefined
-
-  console.log('bar', error, result); // bar bar undefined
- * @example "sync" but returning promise
-  const wrappedFn = wrapException((param1: string) => {
-    if (param1 === 'bar') return Promise.reject(new Error('bar'));
-
-    return 'foo';
-  });
-
-  // wrappedFn will be typed with `const wrappedFn: (param1: string) => Promise<WrappedResponse<string>>`
-
-  const [error, result] = wrappedFn('bar');
-
-  // error: unknown
-  // result: string | undefined
-
-  console.log('bar', error, result); // bar bar undefined
-  */
+// IMPLEMENTATION (TODO: should have the jsdoc here)
 function wrapException<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Fn extends (...args: any[]) => any, // any is important to accept any kind of function as a parameter
