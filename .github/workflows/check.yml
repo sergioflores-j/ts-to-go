@@ -9,6 +9,9 @@ jobs:
   check_code:
     name: Build and Test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ 16, 18, 20 ]
     steps:
       - name: Cancel if [skip ci]
         if: contains(github.event.head_commit.message, '[skip ci]')
@@ -31,16 +34,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
   
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node }}
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
       
-      # TODO: use parallel jobs?
-      - run: npm run build
-      - run: npm run lint
-      - run: npm run test
+      - run: npm run all
+
