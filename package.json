@@ -10,7 +10,7 @@
     "test": "npx turbo run test",
     "test-affected": "npx turbo run test --filter=[$FROM_COMMIT...$TO_COMMIT]"
   },
-  "author": "Sergio Flores & Richard Devegili",
+  "author": "Sergio Flores",
   "license": "ISC",
   "workspaces": [
     "packages/*"
@@ -18,6 +18,12 @@
   "engines": {
     "node": ">= 18"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sergioflores-j/ts-to-go.git"
+  },
+  "homepage": "https://github.com/sergioflores-j/ts-to-go",
+  "bugs": "https://github.com/sergioflores-j/ts-to-go/issues",
   "packageManager": "npm@10.8.2",
   "devDependencies": {
     "@swc/core": "^1.7.2",
