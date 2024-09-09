@@ -43,6 +43,11 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'npm'
 
+      - name: Version checks
+        run: |
+          npm --version
+          node -v
+
       - name: Install dependencies
         run: npm ci
       
