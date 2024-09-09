@@ -13,8 +13,11 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/sergioflores-j/ts-to-go.git"
+    "url": "git+https://github.com/sergioflores-j/ts-to-go.git",
+    "directory": "packages/wrapException"
   },
+  "homepage": "https://github.com/sergioflores-j/ts-to-go",
+  "bugs": "https://github.com/sergioflores-j/ts-to-go/issues",
   "scripts": {
     "build": "esbuild --version && esbuild src/index.ts --bundle --platform=node --target=node16 --outfile=dist/index.js && tsc --version && tsc --project ./tsconfig.lib.json",
     "lint": "eslint . --ext .ts",
@@ -22,6 +25,6 @@
     "type-check": "tsc --version && tsc --noEmit",
     "set-version": "npm version $VERSION"
   },
-  "author": "Sergio Flores & Richard Devegili",
+  "author": "Sergio Flores",
   "license": "ISC"
 }

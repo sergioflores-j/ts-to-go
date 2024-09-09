@@ -40,6 +40,8 @@ if (isError) {
 }
 ```
 
+TIP: always check if the result of a function execution is an error or not using the `isError` attribute. (more about it in the FAQ section)
+
 ### 1. Wrapping Asynchronous Functions (simple usage)
 
 ```ts
@@ -193,11 +195,79 @@ const someWrappedFn = wrapException<typeof myFn, AxiosError>(myFn);
 const { isError, error, data } = await someWrappedFn();
 
 if (isError) {
-  // if myFn throws some other error type, e.g. Error
-  // then error.response will be undefined
-  
-  // Breaking the previous implementation of the consumer, as like:
-  throw new HttpError(error.response.status);
+  /**
+   * If `myFn` starts to throw some other error type, such as:
+   * @example Error
+   * @example ValidationError
+   * @example SyntaxError
+   * ...
+   * Then `error.response` below will be undefined
+   * Breaking the previous implementation of the consumer, as like:
+   */
+  throw new HttpError(error.response.status); // throws: 'cannot access status of undefined'
 }
 ```
 
+## FAQ
+
+### Why is there an `isError` attribute? And why always check it?
+
+`wrapException` returns a control variable called `isError` that is useful to identify if the returned values from the executed function is an Error or a Success (`data`).
+
+Ideally, this wouldn't be necessary and the check would be as follows:
+
+```ts
+const result = fn();
+if (result.error) {
+  // result.error is unknown so it has to be handled
+  // result.data is undefined
+} else {
+  // result.error is undefined
+  // result.data is the type the function defined.. T
+}
+```
+
+This is not possible because the default returned type for the `error` is `unknown` as the following types:
+
+```ts
+type ErrorResponse = { error: unknown; data: undefined };
+type SuccessResponse = { error: undefined; data: T };
+
+type WrappedResponse = SuccessResponse | ErrorResponse;
+```
+
+In Typescript, `unknown` is ['stronger'](https://www.typescriptlang.org/docs/handbook/type-compatibility.html#any-unknown-object-void-undefined-null-and-never-assignability) than any other type because anything can be assigned to it. i.e. an union type of `unknown | undefined` becomes `unknown`. 
+
+Which means the union of the above mentioned types becomes something like:
+
+```ts
+type WrappedResponse = { error: unknown; data: T | undefined };
+```
+
+Notice that the `undefined` union is now gone. This results in the following behavior:
+
+```ts
+const result = fn();
+if (result.error) {
+  // result.error is unknown so it has to be handled
+  // result.data is T | undefined (which is not true! here the data would be undefined)
+} else {
+  // result.error is still unknown
+  // result.data is T | undefined (which is not true! here data would already be of type "T")
+}
+```
+
+`isError` for the rescue!
+
+It serves as a unique identifier in the union type so that Typescript can infer the resulting type properly:
+
+```ts
+const result = fn();
+if (result.isError) {
+  // result.error is unknown so it has to be handled
+  // result.data is unknown (serves the same purpose as "undefined")
+} else {
+  // result.error is undefined (now we can be SURE it is not an error)
+  // result.data is the type the function defined = T
+}
+```

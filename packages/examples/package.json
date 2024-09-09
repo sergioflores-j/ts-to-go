@@ -8,7 +8,7 @@
     "test": "jest --passWithNoTests",
     "type-check": "tsc --noEmit"
   },
-  "author": "Sergio Flores & Richard Devegili",
+  "author": "Sergio Flores",
   "license": "ISC",
   "dependencies": {
     "@ts-to-go/wrap-exception": "*"
