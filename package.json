@@ -10,8 +10,11 @@
     "test": "npx turbo run test",
     "test-affected": "npx turbo run test --filter=[$FROM_COMMIT...$TO_COMMIT]"
   },
-  "author": "Sergio Flores",
-  "license": "ISC",
+  "author": {
+    "name": "ts-to-go contributors",
+    "url": "https://github.com/sergioflores-j/ts-to-go/graphs/contributors"
+  },
+  "license": "MIT",
   "workspaces": [
     "packages/*"
   ],

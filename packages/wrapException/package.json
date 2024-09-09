@@ -2,22 +2,28 @@
   "name": "@ts-to-go/wrap-exception",
   "version": "2.0.0-rc.2",
   "description": "TS to go for better error handling",
+  "author": {
+    "name": "ts-to-go contributors",
+    "url": "https://github.com/sergioflores-j/ts-to-go/graphs/contributors"
+  },
+  "type": "commonjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "import": {
+        "types": "./index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "default": "./dist/index.js"
+      }
     }
   },
-  "private": false,
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/sergioflores-j/ts-to-go.git",
-    "directory": "packages/wrapException"
-  },
-  "homepage": "https://github.com/sergioflores-j/ts-to-go",
-  "bugs": "https://github.com/sergioflores-j/ts-to-go/issues",
+  "files": [
+    "dist/**"
+  ],
   "scripts": {
     "build": "esbuild --version && esbuild src/index.ts --bundle --platform=node --target=node16 --outfile=dist/index.js && tsc --version && tsc --project ./tsconfig.lib.json",
     "lint": "eslint . --ext .ts",
@@ -25,6 +31,26 @@
     "type-check": "tsc --version && tsc --noEmit",
     "set-version": "npm version $VERSION"
   },
-  "author": "Sergio Flores",
-  "license": "ISC"
+  "engineStrict": true,
+  "engines": {
+    "node": ">=16"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sergioflores-j/ts-to-go.git",
+    "directory": "packages/wrapException"
+  },
+  "homepage": "https://github.com/sergioflores-j/ts-to-go",
+  "bugs": "https://github.com/sergioflores-j/ts-to-go/issues",
+  "license": "MIT",
+  "keywords": [
+    "Typescript",
+    "Utility",
+    "Error Handling",
+    "Code Quality",
+    "Code Standards"
+  ]
 }
