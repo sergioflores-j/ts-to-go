@@ -46,7 +46,5 @@ npm i
 4. Run build/test/lint for your changes:
 
 ```
-npm run build-affected
-npm run lint-affected
-npm run test-affected
+npm run all
 ```
