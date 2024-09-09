@@ -250,7 +250,7 @@ Notice that the `undefined` union is now gone. This results in the following beh
 const result = fn();
 if (result.error) {
   // result.error is unknown so it has to be handled
-  // result.data is T | undefined
+  // result.data is T | undefined (which is not true! here the data would be undefined)
 } else {
   // result.error is still unknown
   // result.data is T | undefined (which is not true! here data would already be of type "T")
