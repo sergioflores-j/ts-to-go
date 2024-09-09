@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "TS utilities ready to go",
   "scripts": {
+    "all": "npx turbo run build lint test",
     "build": "npx turbo run build",
     "build-affected": "npx turbo run build --filter=[$FROM_COMMIT...$TO_COMMIT]",
     "lint": "npx turbo run type-check lint",
