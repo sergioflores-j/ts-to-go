@@ -193,11 +193,16 @@ const someWrappedFn = wrapException<typeof myFn, AxiosError>(myFn);
 const { isError, error, data } = await someWrappedFn();
 
 if (isError) {
-  // if myFn throws some other error type, e.g. Error
-  // then error.response will be undefined
-  
-  // Breaking the previous implementation of the consumer, as like:
-  throw new HttpError(error.response.status);
+  /**
+   * If `myFn` starts to throw some other error type, such as:
+   * @example Error
+   * @example ValidationError
+   * @example SyntaxError
+   * ...
+   * Then `error.response` below will be undefined
+   * Breaking the previous implementation of the consumer, as like:
+   */
+  throw new HttpError(error.response.status); // throws: 'cannot access status of undefined'
 }
 ```
 
