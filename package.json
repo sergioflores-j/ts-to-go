@@ -3,12 +3,12 @@
   "version": "1.0.1",
   "description": "TS utilities ready to go",
   "scripts": {
-    "build": "npx turbo run build",
-    "build-affected": "npx turbo run build --filter=[$FROM_COMMIT...$TO_COMMIT]",
-    "lint": "npx turbo run type-check lint",
-    "lint-affected": "npx turbo run type-check lint --filter=[$FROM_COMMIT...$TO_COMMIT]",
-    "test": "npx turbo run test",
-    "test-affected": "npx turbo run test --filter=[$FROM_COMMIT...$TO_COMMIT]"
+    "build": "make build",
+    "build-affected": "make build-affected",
+    "lint": "make lint",
+    "lint-affected": "make lint-affected",
+    "test": "make test",
+    "test-affected": "make test-affected"
   },
   "author": {
     "name": "ts-to-go contributors",

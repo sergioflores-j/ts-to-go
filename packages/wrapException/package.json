@@ -7,17 +7,18 @@
     "url": "https://github.com/sergioflores-j/ts-to-go/graphs/contributors"
   },
   "type": "commonjs",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
-        "types": "./index.d.ts",
-        "default": "./dist/index.js"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       },
       "require": {
-        "types": "./index.d.ts",
-        "default": "./dist/index.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
       }
     }
   },
@@ -25,10 +26,9 @@
     "dist/**"
   ],
   "scripts": {
-    "build": "esbuild --version && esbuild src/index.ts --bundle --platform=node --target=node16 --outfile=dist/index.js && tsc --version && tsc --project ./tsconfig.lib.json",
-    "lint": "eslint . --ext .ts",
-    "test": "jest",
-    "type-check": "tsc --version && tsc --noEmit",
+    "build": "rm -rf dist && make build",
+    "lint": "make lint",
+    "test": "make test",
     "set-version": "npm version $VERSION"
   },
   "engineStrict": true,
