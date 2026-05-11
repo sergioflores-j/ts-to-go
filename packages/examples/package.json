@@ -4,9 +4,8 @@
   "description": "TS to go examples",
   "private": true,
   "scripts": {
-    "lint": "eslint . --ext .ts",
-    "test": "jest --passWithNoTests",
-    "type-check": "tsc --noEmit"
+    "lint": "make lint",
+    "test": "make test"
   },
   "author": {
     "name": "ts-to-go contributors",

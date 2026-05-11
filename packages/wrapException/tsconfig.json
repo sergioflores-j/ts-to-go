@@ -3,7 +3,8 @@
   "compilerOptions": {
     "preserveConstEnums": true,
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": false,
+    "declarationMap": true,
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
